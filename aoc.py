@@ -1,3 +1,4 @@
+#! /bin/env python
 """
 Main dispatch script.
 """
@@ -26,6 +27,7 @@ def main():
     environment = sys.argv[2]
     if environment not in VALID_ENVIRONMENTS:
         print(f'{environment} isn\'t a valid environment.\nAccepted values: {", ".join(VALID_ENVIRONMENTS)}.{USAGE}')
+        exit(1)
 
     print('Running solution...')
     solution, valid_solution = run_solution(day, environment)
@@ -45,11 +47,11 @@ def run_solution(day: int, environment: str) -> Tuple[int, Optional[int]]:
 
     data = json_data[environment]['data']
     if 'solution' in json_data[environment]:
-        valid_solution = json_data[environment]['solution']
+        valid_solution = int(json_data[environment]['solution'])
     else:
         valid_solution = None
 
-    solution_handle = __import__(f'day-{day}.solution').solution
+    solution_handle = getattr(__import__(f'day-{day}.day-{day}'), f'day-{day}').solution
 
     return solution_handle(data), valid_solution
 
