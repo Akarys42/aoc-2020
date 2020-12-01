@@ -8,7 +8,7 @@ import sys
 
 from typing import Tuple, Optional
 
-USAGE = """\nUsage:\n\taoc.py [day] [environment]"""
+USAGE = """\nUsage:\n\taoc.py [day-part] [environment]"""
 
 VALID_ENVIRONMENTS = ('sample', 'challenge')
 
@@ -19,9 +19,19 @@ def main():
         exit(1)
 
     try:
-        day = int(sys.argv[1])
+        parts = sys.argv[1].split('-')
+
+        if len(parts) != 2:
+            raise ValueError
+
+        day = int(parts[0])
+        part = int(parts[1])
+
+        if part not in (1, 2):
+            raise ValueError
+
     except ValueError:
-        print(f'{sys.argv[1]} isn\'t a valid number.{USAGE}')
+        print(f'{sys.argv[1]} doesn\'t have the right format.{USAGE}')
         exit(1)
 
     environment = sys.argv[2]
@@ -30,7 +40,7 @@ def main():
         exit(1)
 
     print('Running solution...')
-    solution, valid_solution = run_solution(day, environment)
+    solution, valid_solution = run_solution(day, part, environment)
 
     print(f'Solution found: {solution}')
 
@@ -41,17 +51,17 @@ def main():
             print(f'Solution is invalid. The solution was {valid_solution}')
 
 
-def run_solution(day: int, environment: str) -> Tuple[int, Optional[int]]:
+def run_solution(day: int, part: int, environment: str) -> Tuple[int, Optional[int]]:
     with open(f'./day-{day}/data.json') as f:
         json_data = json.load(f)
 
     data = json_data[environment]['data']
     if 'solution' in json_data[environment]:
-        valid_solution = int(json_data[environment]['solution'])
+        valid_solution = int(json_data[environment]['solution'][part - 1])
     else:
         valid_solution = None
 
-    solution_handle = getattr(__import__(f'day-{day}.day-{day}'), f'day-{day}').solution
+    solution_handle = getattr(getattr(__import__(f'day-{day}.day-{day}'), f'day-{day}'), f'solution_{part}')
 
     return solution_handle(data), valid_solution
 
